@@ -12,27 +12,28 @@ RUN apt -qq -y update
 RUN apt -qq -y upgrade
 RUN apt -qq -y install \
     wget \
-    python \
-    python-dev \
-    python-pip \
-    python-virtualenv \
+    software-properties-common \
     git \
     vim
 
-# Install miniconda to /miniconda
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-RUN bash miniconda.sh -p /miniconda -b
-RUN rm miniconda.sh
-ENV PATH="/miniconda/bin:${PATH}"
-RUN conda update -y conda
-RUN conda info -a
+# Install Python 3.6
+# https://stackoverflow.com/a/44254088/8931942
+RUN add-apt-repository -y ppa:jonathonf/python-3.6 && \
+    apt -qq -y update
+RUN apt -qq -y install \
+    python3.6 \
+    python3.6-dev \
+    python3.6-venv
+RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN python3 get-pip.py
+RUN ln -s /usr/bin/python3.6 /usr/local/bin/python3
+RUN echo "alias python=python3" >> ~/.bashrc && \
+    source ~/.bashrc
 
-# Install PyTorch with Conda
-RUN conda install -q -y \
-    pytorch \
-    scipy \
-    -c pytorch
-RUN conda clean -t -y
+# Install pyhf
+# RUN git clone https://github.com/diana-hep/pyhf.git && cd pyhf
+# RUN pip install -U --process-dependency-links -e .[develop] && \
+#     pip install --upgrade pytest
 
 RUN rm -rf /var/lib/apt/lists/*
 RUN rm -rf /root/*
