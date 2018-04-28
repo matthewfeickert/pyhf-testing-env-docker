@@ -8,8 +8,9 @@ WORKDIR /root
 SHELL [ "/bin/bash", "-c" ]
 
 # Install general dependencies
-RUN apt-get -qq -y update
-RUN apt-get -qq -y install \
+RUN apt -qq -y update
+RUN apt -qq -y upgrade
+RUN apt -qq -y install \
     wget \
     python \
     python-dev \
@@ -31,6 +32,7 @@ RUN conda install -q -y \
     pytorch \
     scipy \
     -c pytorch
+RUN conda clean -t -y
 
 RUN rm -rf /var/lib/apt/lists/*
 RUN rm -rf /root/*
