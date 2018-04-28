@@ -8,7 +8,10 @@ Dockerfile for container for testing environment for [pyhf](https://github.com/d
 ## Installed Dependencies
 
 - wget
-- Python 3
+- python (Python 3)
+- python-dev
+- python-pip
+- python-virtualenv
 - git
 - vim
 - Miniconda

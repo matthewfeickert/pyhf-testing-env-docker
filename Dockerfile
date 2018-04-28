@@ -5,7 +5,7 @@ MAINTAINER Matthew Feickert <matthew.feickert@cern.ch>
 ENV HOME /root
 WORKDIR /root
 
-SHELL ["/bin/bash", "-c"]
+SHELL [ "/bin/bash", "-c" ]
 
 # Install general dependencies
 RUN apt-get -qq -y update
@@ -35,8 +35,8 @@ RUN conda install -q -y \
 RUN rm -rf /var/lib/apt/lists/*
 RUN rm -rf /root/*
 
-# Define working directory.
+# Define working directory
 WORKDIR /data
-VOLUME ["/root"]
+VOLUME [ "/root" ]
 
 CMD [ "/bin/bash" ]
