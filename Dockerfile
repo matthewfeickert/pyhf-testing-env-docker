@@ -1,4 +1,4 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 
 MAINTAINER Matthew Feickert <matthew.feickert@cern.ch>
 
@@ -8,35 +8,40 @@ WORKDIR /root
 SHELL [ "/bin/bash", "-c" ]
 
 # Install general dependencies
-RUN apt -qq -y update
-RUN apt -qq -y upgrade
-RUN apt -qq -y install \
-    wget \
-    software-properties-common \
+RUN apt-get -qq -y update \
+    && apt-get -qq -y upgrade \
+    && apt-get -qq -y install \
+    gcc \
+    g++ \
     git \
-    vim
+    zlibc \
+    zlib1g-dev \
+    libssl-dev \
+    libbz2-dev \
+    wget \
+    make \
+    software-properties-common \
+    vim \
+    emacs
 
 # Install Python 3.6
-# https://stackoverflow.com/a/44254088/8931942
-RUN add-apt-repository -y ppa:jonathonf/python-3.6 && \
-    apt -qq -y update
-RUN apt -qq -y install \
-    python3.6 \
-    python3.6-dev \
-    python3.6-venv
-RUN wget https://bootstrap.pypa.io/get-pip.py
-RUN python3 get-pip.py
-RUN ln -s /usr/bin/python3.6 /usr/local/bin/python3
-RUN echo "alias python=python3" >> ~/.bashrc && \
-    source ~/.bashrc
+RUN wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz \
+    && tar -xvzf Python-3.6.6.tgz > /dev/null \
+    && rm Python-3.6.6.tgz
+RUN cd Python-3.6.6 \
+    && ./configure --with-bz2 \
+    && make \
+    && make install
+RUN echo "alias python=python3" >> ~/.bashrc
+RUN pip3 install --upgrade --quiet pip setuptools wheel
 
-# Install pyhf
-# RUN git clone https://github.com/diana-hep/pyhf.git && cd pyhf
-# RUN pip install -U --process-dependency-links -e .[develop] && \
-#     pip install --upgrade pytest
+# Install pyhf development environment
+RUN git clone https://github.com/diana-hep/pyhf.git \
+    && cd pyhf \
+    && pip3 install --upgrade -e .[develop,tensorflow,mxnet,torch]
 
-RUN rm -rf /var/lib/apt/lists/*
-RUN rm -rf /root/*
+RUN rm -rf /var/lib/apt-get/lists/* \
+    && rm -rf /root/Python-3.6.6
 
 # Define working directory
 WORKDIR /data

@@ -7,11 +7,16 @@ Dockerfile for container for testing environment for [pyhf](https://github.com/d
 
 ## Installed Dependencies
 
-- wget
-- software-properties-common
+- gcc
+- g++
 - git
+- zlibc
+- zlib1g-dev
+- libssl-dev
+- libbz2-dev
+- wget
+- make
+- software-properties-common
+- Python 3.6
 - vim
-- python3.6
-- python3.6-dev
-- python3.6-venv
-- pip3
+- emacs
