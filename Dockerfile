@@ -1,43 +1,11 @@
-FROM ubuntu:bionic
+FROM matthewfeickert/docker-python3-ubuntu:latest
 
-MAINTAINER Matthew Feickert <matthew.feickert@cern.ch>
+MAINTAINER Matthew Feickert <matthewfeickert@users.noreply.github.com>
 
-ENV HOME /root
-WORKDIR /root
+USER root
+ENV USER root
 
-SHELL [ "/bin/bash", "-c" ]
-
-# Install general dependencies
-RUN apt-get -qq -y update && \
-    apt-get -qq -y upgrade && \
-    apt-get -qq -y install \
-     gcc \
-     g++ \
-     git \
-     zlibc \
-     zlib1g-dev \
-     libssl-dev \
-     libbz2-dev \
-     wget \
-     make \
-     software-properties-common \
-     vim \
-     emacs \
-     cmake \
-     cpio \
-     gfortran
-
-# Install Python 3.6
-RUN wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz && \
-    tar -xvzf Python-3.6.6.tgz > /dev/null && \
-    rm Python-3.6.6.tgz && \
-    cd Python-3.6.6 && \
-    ./configure --with-bz2 && \
-    make && \
-    make install
-#RUN echo "alias python=python3" >> ~/.bashrc
-RUN ln -s $(which python3) /usr/bin/python  # This is Ubuntu 18.04, so no Python 2
-RUN pip3 install --upgrade --quiet pip setuptools wheel
+RUN pip3 install --upgrade --no-cache-dir pip setuptools wheel
 
 # Install MKL using releases from https://github.com/intel/mkl-dnn/releases
 RUN cd /tmp && \
@@ -53,7 +21,7 @@ RUN cd /tmp && \
   echo ". /opt/intel/bin/compilervars.sh intel64" >> /etc/bash.bashrc
 
 # Install numpy with MKL
-RUN pip install Cython
+RUN pip3 install Cython
 
 RUN cd /tmp && \
     git clone https://github.com/numpy/numpy.git numpy && \
@@ -64,8 +32,8 @@ RUN cd /tmp && \
     echo "library_dirs = /opt/intel/mkl/lib/intel64/" >> site.cfg && \
     echo "mkl_libs = mkl_rt" >> site.cfg && \
     echo "lapack_libs =" >> site.cfg && \
-    python setup.py build --fcompiler=gnu95 && \
-    python setup.py install && \
+    python3 setup.py build --fcompiler=gnu95 && \
+    python3 setup.py install && \
     cd .. && \
     rm -rf *
 
@@ -73,21 +41,16 @@ RUN cd /tmp && \
 RUN cd /tmp && \
     git clone https://github.com/scipy/scipy.git scipy && \
     cd scipy && \
-    python setup.py build && \
-    python setup.py install && \
+    python3 setup.py build && \
+    python3 setup.py install && \
     cd .. && \
     rm -rf *
 
 # Install pyhf development environment
 RUN git clone https://github.com/diana-hep/pyhf.git && \
     cd pyhf && \
-    pip3 install --upgrade -e .[tensorflow,torch,mxnet,develop]
+    pip3 install --no-cache-dir --upgrade -e .[complete]
 
-RUN rm -rf /var/lib/apt-get/lists/* && \
-    rm -rf /root/Python-3.6.6
-
-# Define working directory
-WORKDIR /data
-VOLUME [ "/root" ]
+ENV USER docker
 
 CMD [ "/bin/bash" ]
